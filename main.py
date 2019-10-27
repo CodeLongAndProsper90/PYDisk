@@ -6,7 +6,22 @@ def get_settings(filename):
     with open(filename,'r') as inf:
         settings = literal_eval(inf.read())
     return settings
-device = io.device('', '')
+dev = ''
+path = ''
+class alert():
+    def __init__(self, title, message, ecode,x,y):
+        from subprocess import Popen
+        top = Toplevel()
+        top.title(title)
+        top.minsize(x,y)
+        msg = Message(top, text=message)
+        msg.pack()
+
+        button = Button(top, text="Dismiss", command=top.destroy)
+        button.pack()
+        p1 = Popen(['python3', 'sound.py', ecode])
+        top.mainloop()
+
 class main():
 
  
@@ -23,18 +38,13 @@ class main():
                 pass
             class done(Exception):
                 pass
-
-            global device
-            try:
-                device.mount()
-            except permissionError:
-                alt = self.alert('Oooops', 'PYMount does not have permission to access block devices. Please rerun as sudo.', 2)
-            except notFoundError:
-                alt = self.alert('Oooops','The file or directory you specifed does not exist.',1)
-            except unknownError:
-                alt = self.alert('Oooops', 'You have encountered an unknown I/O error. Check the file mountlog.txt for more info',2)
-            except done:
-                alt = self.alert('Woohoo!', 'Device mounted',0)
+            global dev, path
+            device = io.device(dev, path)
+            error = device.mount()
+            if error == 2: alt = alert('Oooops', 'PYMount does not have permission to access block devices. Please rerun as sudo.', 2, 200, 100)
+            if error == 1: alt = alert('Oooops','The file or directory you specifed does not exist.',1, 200, 100)
+            elif error ==3:alt = alert('Oooops', 'You have encountered an unknown I/O error. Check the file mountlog.txt for more info',2, 200, 100)
+            elif error == 0:alt = alert('Woohoo!', 'Device mounted',0)
         def __init__(self, master):
             self.mount_button = Button(master,text="Mount", width=10, height=5, command=self.m)
             self.mount_button.grid(row=0,column=0, padx=2)
@@ -42,7 +52,7 @@ class main():
     class umount:
 
         def u(self):
-            global device
+            device = io.device(dev, path)
             device.umount()
         def __init__(self, master):
             self.umount_button = Button(master, text = "Unmount",width=10, height=5, command=self.u)
@@ -57,8 +67,9 @@ class main():
             self.text = Entry(master, textvariable=self.Input)
             self.text.grid(row=2, column=0, pady=2, sticky='W')
         def get_input(self, *args):
-            self.path = self.Input.get()
-            print(self.path)
+            global path
+            path = self.Input.get()
+            print(path)
         def set_output(self, master,string):
             self.Output.set(string)
             master.update()
@@ -72,30 +83,15 @@ class main():
             self.text = Entry(master, textvariable=self.Input)
             self.text.grid(row=4, column=0, pady=2, sticky='W')
         def get_input(self, *args):
-            self.devic = self.Input.get()
-            print(self.devic)
+            global dev
+            dev = self.Input.get()
+            print(dev)
         def set_output(self, master,string):
             print('set_output called')
             self.Output.set(string)
             master.update()
-    class alert():
-        def __init__(self, title, message, ecode):
 
-            top = Toplevel()
-            top.title(title)
-
-            msg = Message(top, text=message)
-            msg.pack()
-
-            button = Button(top, text="Dismiss", command=top.destroy)
-            button.pack()
-            if ecode ==2:
-                play('ue.wav')
-            elif ecode == 1:
-                play('e.wav')
-            elif ecode == 0:
-                play('i.wav')
-            top.mainloop()
+            
     class new_user():
         def __init__(self):
 
@@ -134,7 +130,6 @@ class main():
 
     def __init__(self, master):
         master.title("PYMount")
-        
         try:
             se = get_settings('.mountrc')
         except:
