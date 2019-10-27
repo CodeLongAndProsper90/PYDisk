@@ -28,10 +28,10 @@ class device():
         output = self.system('mount -v ' + self.get_dev() + " " + self.get_path() )
         print(output)
         
-        if "mount: mount point " + self.get_path() +" does not exist" in output: return 1
-        elif output == "mount: only root can do that": return 2           
-        elif 'mounted' in output: return 0
-        else: 3
+        if "does not exist" in output: print(1) ;return 1
+        elif output == "mount: only root can do that": print(1) ; return 2           
+        elif 'mounted' in output: print(0);return 0
+        else: print(3);return 3
     def umount(self):
         output = self.system('umount -v '+  self.get_dev())
         print(output)

@@ -10,7 +10,15 @@ dev = ''
 path = ''
 class alert():
     def __init__(self, title, message, ecode,x,y):
-        from subprocess import Popen
+        if ecode == '0': 
+            play('i.wav')
+        elif ecode == '1': 
+            play('E.wav')
+        elif ecode == '2': 
+            play('ue.wav')
+        elif ecode == '3': 
+            play('Hal.wav')
+        
         top = Toplevel()
         top.title(title)
         top.minsize(x,y)
@@ -19,7 +27,8 @@ class alert():
 
         button = Button(top, text="Dismiss", command=top.destroy)
         button.pack()
-        p1 = Popen(['python3', 'sound.py', ecode])
+        from time import sleep
+        
         top.mainloop()
 
 class main():
@@ -30,21 +39,12 @@ class main():
     class mount:
 
         def m(self):
-            class permissionError(Exception):
-                pass
-            class notFoundError(Exception):
-                pass
-            class unknownError(Exception):
-                pass
-            class done(Exception):
-                pass
             global dev, path
             device = io.device(dev, path)
             error = device.mount()
-            if error == 2: alt = alert('Oooops', 'PYMount does not have permission to access block devices. Please rerun as sudo.', 2, 200, 100)
-            if error == 1: alt = alert('Oooops','The file or directory you specifed does not exist.',1, 200, 100)
-            elif error ==3:alt = alert('Oooops', 'You have encountered an unknown I/O error. Check the file mountlog.txt for more info',2, 200, 100)
-            elif error == 0:alt = alert('Woohoo!', 'Device mounted',0)
+            if error == 2: main.stat.set_color('yellow') ; main.stat.set_text('Permission denied. Run as root')
+            if error == 1: main.stat.set_color('red') ; main.stat.set_text('Mountpoint or device not found')
+            elif error ==3: main.stat.set_color('red'); main.stat.set_text('WARNING: I/O ERROR')
         def __init__(self, master):
             self.mount_button = Button(master,text="Mount", width=10, height=5, command=self.m)
             self.mount_button.grid(row=0,column=0, padx=2)
@@ -126,8 +126,20 @@ class main():
             # Start the window running
             top.mainloop()
             
-            
-
+    class status():
+        def __init__(self, master, text, col):
+            color = StringVar()
+            tex = StringVar()
+            color.set(col)
+            tex.set(text)
+            msg = Label(master, textvariable=tex, fg=(color.get()), width=20, height=2)
+            msg.grid(row=5, column=0, pady=2)
+        def set_color(self, col):
+            self.color.set(color)
+            master.refresh()
+        def set_text(self, text):
+            self.tex.set(text)
+            master.update()
     def __init__(self, master):
         master.title("PYMount")
         try:
@@ -142,6 +154,7 @@ class main():
         dev = self.d_text(master)
         dev.text.bind('<Return>', dev.get_input)
         dev.set_output(master, "Enter your drive location [/dev/sd*]")
+        stat =  self.status(master, 'No errors', 'black')
 print("We are go with no exceptions")
 win = Tk()
 print('win formed')
