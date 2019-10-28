@@ -8,6 +8,7 @@ def get_settings(filename):
     return settings
 dev = ''
 path = ''
+"""
 class alert():
     def __init__(self, title, message, ecode,x,y):
         if ecode == '0': 
@@ -30,17 +31,17 @@ class alert():
         from time import sleep
         
         top.mainloop()
-
-class main():
+"""
+class mount():
 
  
-    devic = ''
-    path = ''
+    dev = StringVar()
+    path = StringVar()
     class mount:
 
         def m(self):
             global dev, path
-            device = io.device(dev, path)
+            device = io.device(dev.get(), path.get())
             error = device.mount()
             if error == 2: main.stat.set_color('yellow') ; main.stat.set_text('Permission denied. Run as root')
             if error == 1: main.stat.set_color('red') ; main.stat.set_text('Mountpoint or device not found')
@@ -60,11 +61,10 @@ class main():
     
     class m_text:
         def __init__(self, master):
-            self.Input =StringVar()
-            self.Output = StringVar()
+            global path
             self.info = Label(master, textvariable=self.Output)
             self.info.grid(row=1, column=0, pady=2, sticky='W')
-            self.text = Entry(master, textvariable=self.Input)
+            self.text = Entry(master, textvariable=path)
             self.text.grid(row=2, column=0, pady=2, sticky='W')
         def get_input(self, *args):
             global path
@@ -76,11 +76,11 @@ class main():
 
     class d_text:
         def __init__(self, master):
-            self.Input = StringVar()
+            global dev
             self.Output = StringVar()
             self.info = Label(master, textvariable=self.Output)
             self.info.grid(row=3, column=0, pady=2, sticky='W')
-            self.text = Entry(master, textvariable=self.Input)
+            self.text = Entry(master, textvariable=dev)
             self.text.grid(row=4, column=0, pady=2, sticky='W')
         def get_input(self, *args):
             global dev
@@ -154,9 +154,23 @@ class main():
         dev = self.d_text(master)
         dev.text.bind('<Return>', dev.get_input)
         dev.set_output(master, "Enter your drive location [/dev/sd*]")
-        stat =  self.status(master, 'No errors', 'black')
+class disk():
+    def __init__(self, master):
+        pass
+    class write():
+        def __init__(self, master):
+            but = Button(master, text='Write', command=write)
+            but.grid(row=0, column=0, padx=2, pady=2,  width=10, height=5)
+        def write():
+            pass 
 print("We are go with no exceptions")
+cmd = input('Start PYDisk or PYWrite?')
 win = Tk()
-print('win formed')
-app = main(win)
+if cmd=='PYDisk':
+    app = mount(win)
+elif cmd == 'PYWrite':
+    app = disk(main)
+else:
+    print('Invalid')
+    exit()
 win.mainloop()
